@@ -52,7 +52,10 @@ namespace ClassLibrary1
         public bool CheckVIN(string vin)
         {
             vin = vin.ToLower();
+            if (!vinRule.Match(vin).Success)
+                return false;
             char[] v = vin.ToCharArray();
+            double cnk = 0;
             for (int i = 0; i < v.Length; i++)
             {
                 if (new Regex(@"[a-z]").Match(v[i].ToString()).Success)
@@ -60,17 +63,20 @@ namespace ClassLibrary1
                     foreach (var item in chartoint)
                     {
                         if (item.Key == v[i])
-                            v[i] = (char)item.Value;
+                            v[i] = char.Parse(item.Value.ToString());
 
                     }
                 }
+                cnk += int.Parse(v[i].ToString()) * weight[i];
             }
-            int cnk = 0;
-            for (int i = 0; i < v.Length; i++)
-            {
-                cnk += (int)v[i] * weight[i];
-            }
-            return vinRule.Match(vin).Success;
+            double sum = cnk;
+            cnk = Math.Floor(cnk / 11);
+            cnk = cnk * 11;
+            cnk = sum - cnk;
+            if (cnk == int.Parse(v[8].ToString()))
+                return true;
+            else
+               return false;
         }
 
         public string GetVINCountry(string vin)
